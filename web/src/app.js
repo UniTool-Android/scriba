@@ -357,6 +357,7 @@ function setState(state) {
         idle: ['Idle', 'secondary'],
         connecting: ['Connecting...', 'warning'],
         detecting: ['Detecting...', 'warning'],
+        'health-check': ['Checking chip...', 'warning'],
         reading: ['Reading...', 'warning'],
         writing: ['Writing...', 'warning'],
         erasing: ['Erasing...', 'warning'],
@@ -367,13 +368,14 @@ function setState(state) {
     badge.textContent = info[0];
     badge.className = 'badge bg-' + info[1] + ' ms-auto';
 
-    var busy = ['connecting', 'detecting', 'reading', 'writing', 'erasing'].indexOf(state) !== -1;
+    var busy = ['connecting', 'detecting', 'health-check', 'reading', 'writing', 'erasing'].indexOf(state) !== -1;
     var warn = document.getElementById('op-warning');
     if (busy) warn.classList.remove('d-none');
     else warn.classList.add('d-none');
 
     document.getElementById('btn-connect').disabled = busy;
     document.getElementById('btn-read-id').disabled = busy;
+    document.getElementById('btn-health-check').disabled = busy || state === 'idle';
     document.getElementById('btn-read').disabled = busy || state === 'idle';
     document.getElementById('btn-write').disabled = busy || state === 'idle';
     document.getElementById('btn-erase').disabled = busy || state === 'idle';
@@ -545,6 +547,111 @@ async function readChipId() {
         log('Detection error: ' + e.message, 'error');
         console.error(e);
         setState('error');
+    }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Chip Health Check (read-only)                                      */
+/* ------------------------------------------------------------------ */
+
+/* Compare two complete reads in 64 KB chunks. This checks read stability
+ * and communication reliability; it does not modify the flash contents. */
+async function doHealthCheck() {
+    if (!scribaReady || flashSize <= 0) return;
+
+    setState('health-check');
+    log('Starting read-only chip health check (' + formatSize(flashSize) + ')...');
+    log('Reading the complete chip twice and comparing every byte.');
+
+    var chunkSize = 65536;
+    var firstPtr = 0, secondPtr = 0;
+    var mismatchBytes = 0, firstMismatch = -1;
+    var nonFFBytes = 0, zeroBytes = 0;
+    var started = Date.now();
+
+    try {
+        firstPtr = Module._malloc(chunkSize);
+        secondPtr = Module._malloc(chunkSize);
+        if (!firstPtr || !secondPtr) {
+            log('Health check failed: unable to allocate read buffers', 'error');
+            setState('error');
+            return;
+        }
+
+        for (var offset = 0; offset < flashSize; offset += chunkSize) {
+            var len = Math.min(chunkSize, flashSize - offset);
+            var pct = Math.floor(offset * 100 / flashSize);
+            showProgress(pct, 'Health check: reading pass 1/2 · ' +
+                formatSize(offset) + ' / ' + formatSize(flashSize));
+
+            var r1 = await wasmCall('scriba_read_flash', 'number',
+                ['number', 'number', 'number'], [firstPtr, offset, len]);
+            if (r1 < 0) {
+                log('Health check failed: first read error ' + r1 +
+                    ' at ' + hexAddr(offset), 'error');
+                hideProgress();
+                setState('error');
+                return;
+            }
+
+            var heap = Module.HEAPU8;
+            for (var i = 0; i < len; i++) {
+                var value = heap[firstPtr + i];
+                if (value !== 0xFF) nonFFBytes++;
+                if (value === 0x00) zeroBytes++;
+            }
+
+            showProgress(pct, 'Health check: reading pass 2/2 · ' +
+                formatSize(offset) + ' / ' + formatSize(flashSize));
+            var r2 = await wasmCall('scriba_read_flash', 'number',
+                ['number', 'number', 'number'], [secondPtr, offset, len]);
+            if (r2 < 0) {
+                log('Health check failed: second read error ' + r2 +
+                    ' at ' + hexAddr(offset), 'error');
+                hideProgress();
+                setState('error');
+                return;
+            }
+
+            heap = Module.HEAPU8;
+            for (var j = 0; j < len; j++) {
+                if (heap[firstPtr + j] !== heap[secondPtr + j]) {
+                    mismatchBytes++;
+                    if (firstMismatch < 0) firstMismatch = offset + j;
+                }
+            }
+        }
+
+        var elapsed = ((Date.now() - started) / 1000).toFixed(1);
+        showProgress(100, 'Health check complete');
+        log('Read test completed in ' + elapsed + ' seconds.');
+        log('Scanned: ' + formatSize(flashSize) +
+            ' · non-0xFF bytes: ' + nonFFBytes.toLocaleString() +
+            ' · zero bytes: ' + zeroBytes.toLocaleString());
+
+        if (mismatchBytes === 0) {
+            log('PASS: both complete reads match byte-for-byte.', 'success');
+            log('No read instability was detected during this check.', 'success');
+        } else {
+            log('WARNING: ' + mismatchBytes.toLocaleString() +
+                ' bytes differed between reads; first mismatch at ' +
+                hexAddr(firstMismatch) + '.', 'error');
+            log('Possible causes include poor contact, unstable power, or SPI clock/noise.', 'warn');
+        }
+
+        if (nonFFBytes === 0) {
+            log('Note: the chip reads entirely as 0xFF (blank or not responding as expected).', 'warn');
+        }
+        setTimeout(hideProgress, 1800);
+        setState('done');
+    } catch (e) {
+        log('Health check error: ' + e.message, 'error');
+        console.error(e);
+        hideProgress();
+        setState('error');
+    } finally {
+        if (firstPtr) Module._free(firstPtr);
+        if (secondPtr) Module._free(secondPtr);
     }
 }
 
@@ -938,7 +1045,7 @@ async function doErase() {
 
 Object.assign(window, {
     connectDevice, readChipId, selectFirmware, firmwareSelected,
-    doRead, doWrite, doErase
+    doRead, doWrite, doErase, doHealthCheck
 });
 
 (function() {
