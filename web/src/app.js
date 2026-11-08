@@ -402,7 +402,7 @@ async function initModule() {
     console.log('Loading EZP Program WASM module...');
 
     try {
-        Module = await createEZP ProgramModule({
+        Module = await createScribaModule({
             printErr: function(text) {
                 if (typeof text === 'string') {
                     if (text.indexOf('[ERASE-DBG]') !== -1) log(text, 'warn');
