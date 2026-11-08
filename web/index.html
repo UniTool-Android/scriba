@@ -195,6 +195,10 @@
                     data-bs-toggle="tooltip" title="Re-detect the flash chip">
                     <i class="bi bi-search me-1"></i> Detect
                 </button>
+                <button id="btn-health-check" class="btn btn-outline-success btn-sm" onclick="doHealthCheck()" disabled
+                    data-bs-toggle="tooltip" title="Read the full chip twice and compare every byte. Read-only; does not write or erase">
+                    <i class="bi bi-heart-pulse me-1"></i> Chip Health Check
+                </button>
                 <button id="btn-read" class="btn btn-outline-info btn-sm" onclick="doRead()" disabled
                     data-bs-toggle="tooltip" title="Read the entire flash and download as .bin">
                     <i class="bi bi-upload me-1"></i> Read Flash
