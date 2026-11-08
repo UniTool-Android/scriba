@@ -1,5 +1,5 @@
 /**
- * Scriba Web Flasher - Application Logic
+ * EZP Program Web Flasher - Application Logic
  *
  * Loads the WASM module, drives the scriba C API from JS,
  * and manages the UI state machine.
@@ -399,10 +399,10 @@ function formatSize(bytes) {
 /* ------------------------------------------------------------------ */
 
 async function initModule() {
-    console.log('Loading Scriba WASM module...');
+    console.log('Loading EZP Program WASM module...');
 
     try {
-        Module = await createScribaModule({
+        Module = await createEZP ProgramModule({
             printErr: function(text) {
                 if (typeof text === 'string') {
                     if (text.indexOf('[ERASE-DBG]') !== -1) log(text, 'warn');

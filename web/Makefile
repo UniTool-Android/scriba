@@ -1,4 +1,4 @@
-# Scriba Web — WASM + frontend build
+# EZP Program Web — WASM + frontend build
 # Just run: make
 
 EMSDK_DIR ?= $(CURDIR)/emsdk
@@ -53,7 +53,7 @@ EMCC_FLAGS := \
 	-s STACK_SIZE=8388608 \
 	--js-library $(WEB_SRC)/libusb-webusb.js
 
-TARGET := $(OUT_DIR)/scriba.js
+TARGET := $(OUT_DIR)/ezp-program.js
 
 .PHONY: all clean distclean serve
 

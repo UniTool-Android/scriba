@@ -1,14 +1,24 @@
 {
   "id": "./",
-  "name": "Scriba Web SPI Flasher",
-  "short_name": "Scriba",
-  "description": "Offline-capable web interface for supported SPI flash programmers.",
+  "name": "EZP Program",
+  "short_name": "EZP Program",
+  "description": "Installable web interface for supported SPI flash programmers.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#0d1117",
   "theme_color": "#0d1117",
-  "categories": ["utilities", "developer"],
-  "icons": [{"src":"./icons/scriba.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+  "categories": [
+    "utilities",
+    "developer"
+  ],
+  "icons": [
+    {
+      "src": "./icons/ezp-program.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
 }

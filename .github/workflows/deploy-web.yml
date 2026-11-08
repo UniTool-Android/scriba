@@ -1,10 +1,9 @@
-name: Deploy web UI
+name: Deploy EZP Program
 
 on:
   push:
-    branches: [master]
+    branches: [ezp-program-web]
     paths:
-      - 'src/**'
       - 'web/**'
       - '.github/workflows/deploy-web.yml'
   workflow_dispatch:
@@ -15,23 +14,28 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
+  group: ezp-program-pages
   cancel-in-progress: true
 
 jobs:
   build:
-    runs-on: ubuntu-26.04
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - name: Checkout web-only branch
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+      - name: Fetch native backend sources from master
+        run: |
+          git fetch --no-tags --depth=1 origin master
+          git checkout FETCH_HEAD -- src
+          test -f src/flashcmd_api.c
+
+      - uses: actions/setup-node@v4
         with:
-          node-version: '24'
+          node-version: '22'
           cache: npm
           cache-dependency-path: web/package-lock.json
 
-      # Pin to the Emscripten release used for local builds
-      # (web/emsdk/upstream/emscripten/emscripten-version.txt).
       - name: Install Emscripten
         run: |
           git clone --depth 1 https://github.com/emscripten-core/emsdk.git web/emsdk
@@ -39,23 +43,28 @@ jobs:
           ./emsdk install 6.0.6
           ./emsdk activate 6.0.6
 
-      - name: Build WASM + frontend
+      - name: Build EZP Program Web
+        shell: bash
         run: |
+          set -euo pipefail
           source web/emsdk/emsdk_env.sh
           make -C web
+          test -s web/dist/index.html
+          test -s web/dist/wasm/ezp-program.js
+          test -s web/dist/wasm/ezp-program.wasm
 
-      - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+      - uses: actions/configure-pages@v5
 
-      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+      - uses: actions/upload-pages-artifact@v3
         with:
           path: web/dist
 
   deploy:
     needs: build
-    runs-on: ubuntu-26.04
+    runs-on: ubuntu-24.04
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0
+        uses: actions/deploy-pages@v4

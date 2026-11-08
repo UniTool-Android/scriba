@@ -4,12 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#0d1117">
-    <meta name="description" content="Scriba Web SPI Flasher for supported USB flash programmers">
+    <meta name="description" content="EZP Program for supported USB flash programmers">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="Scriba Flasher">
+    <meta name="apple-mobile-web-app-title" content="EZP Program">
     <link rel="manifest" href="./manifest.webmanifest">
-    <link rel="apple-touch-icon" href="./icons/scriba.svg">
+    <link rel="apple-touch-icon" href="./icons/ezp-program.svg">
     <title>Scriba · Web SPI Flasher</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔌</text></svg>">
     <style>
@@ -159,10 +159,10 @@
     <div class="card mb-3">
         <div class="card-header d-flex align-items-center gap-2">
             <h2 class="card-title mb-0 fs-5" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;">
-                <i class="bi bi-cpu me-1"></i><span class="d-none d-sm-inline"> Scriba Web SPI Flasher</span><span class="d-sm-none"> Scriba Flasher</span>
+                <i class="bi bi-cpu me-1"></i><span class="d-none d-sm-inline"> EZP Program</span><span class="d-sm-none"> EZP Program</span>
             </h2>
             <span id="status-badge" class="badge bg-secondary ms-auto">Idle</span>
-            <button id="btn-install-app" class="btn btn-outline-secondary btn-sm d-none" type="button" aria-label="Install Scriba app"><i class="bi bi-download me-1"></i> Install App</button>
+            <button id="btn-install-app" class="btn btn-outline-secondary btn-sm d-none" type="button" aria-label="Install EZP Program app"><i class="bi bi-download me-1"></i> Install App</button>
         </div>
 
         <div id="op-warning" class="card-header bg-danger bg-opacity-10 text-danger text-center py-1 d-none" style="animation: pulse-warn 1.5s infinite;">
@@ -294,7 +294,7 @@
 </div>
 
 <p class="mt-2 small text-center">
-    <a href="https://github.com/themactep/scriba" target="_blank" class="footer-link text-decoration-none">scriba</a>
+    <a href="https://github.com/UniTool-Android/scriba/tree/ezp-program-web" target="_blank" class="footer-link text-decoration-none">EZP Program</a>
     <span class="text-secondary"> web-wasm</span>
 </p>
 
@@ -303,7 +303,7 @@
     WebUSB requires <strong>HTTPS</strong> (or localhost) and <strong>Chrome</strong> or <strong>Edge</strong>.
 </div>
 
-<script src="./wasm/scriba.js"></script>
-<script type="module" src="/src/main.js"></script>
+<script src="./wasm/ezp-program.js"></script>
+<script type="module" src="./src/main.js"></script>
 </body>
 </html>

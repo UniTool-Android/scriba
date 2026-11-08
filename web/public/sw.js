@@ -1,5 +1,5 @@
-const CACHE_NAME = 'scriba-pwa-v1'
-const APP_SHELL = ['./', './index.html', './manifest.webmanifest', './icons/scriba.svg']
+const CACHE_NAME = 'ezp-program-pwa-v1'
+const APP_SHELL = ['./', './index.html', './manifest.webmanifest', './icons/ezp-program.svg']
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)).then(() => self.skipWaiting()))
@@ -22,7 +22,7 @@ self.addEventListener('fetch', event => {
       return response
     }).catch(() => {
       if (request.mode === 'navigate') return caches.match('./index.html')
-      throw new Error('Scriba resource is not available offline')
+      throw new Error('EZP Program resource is not available offline')
     })
   }))
 })
