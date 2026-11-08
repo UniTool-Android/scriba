@@ -1,0 +1,67 @@
+name: Build Scriba Web (WASM)
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'src/**'
+      - 'web/**'
+      - '.github/workflows/build-web.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: scriba-web-build
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git make python3 cmake
+
+      - name: Install Emscripten
+        run: |
+          git clone --depth 1 https://github.com/emscripten-core/emsdk.git web/emsdk
+          cd web/emsdk
+          ./emsdk install 6.0.6
+          ./emsdk activate 6.0.6
+
+      - name: Build WASM and frontend
+        shell: bash
+        run: |
+          set -euo pipefail
+          source web/emsdk/emsdk_env.sh
+          emcc --version
+          make -C web
+
+      - name: Verify build outputs
+        run: |
+          test -s web/dist/index.html
+          test -s web/dist/wasm/scriba.js
+          test -s web/dist/wasm/scriba.wasm
+          echo "Scriba Web output:"
+          find web/dist -maxdepth 4 -type f -printf '%p %s bytes\n' | sort
+
+      - name: Upload downloadable web build
+        uses: actions/upload-artifact@v4
+        with:
+          name: scriba-web
+          path: web/dist/
+          if-no-files-found: error
+          retention-days: 30
