@@ -3,11 +3,15 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0d1117">
+    <meta name="description" content="Scriba Web SPI Flasher for supported USB flash programmers">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Scriba Flasher">
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="apple-touch-icon" href="./icons/scriba.svg">
     <title>Scriba · Web SPI Flasher</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔌</text></svg>">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --thingino-orange: #ff8800;
@@ -32,7 +36,7 @@
             max-width: calc(var(--log-cols) * 0.6 * var(--log-font) + 2.2rem + 22px);
         }
         .card-header h2, .card-header .card-title {
-            font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+            font-family: system-ui, -apple-system, sans-serif;
             font-weight: 600;
             color: #e6edf3 !important;
         }
@@ -158,6 +162,7 @@
                 <i class="bi bi-cpu me-1"></i><span class="d-none d-sm-inline"> Scriba Web SPI Flasher</span><span class="d-sm-none"> Scriba Flasher</span>
             </h2>
             <span id="status-badge" class="badge bg-secondary ms-auto">Idle</span>
+            <button id="btn-install-app" class="btn btn-outline-secondary btn-sm d-none" type="button" aria-label="Install Scriba app"><i class="bi bi-download me-1"></i> Install App</button>
         </div>
 
         <div id="op-warning" class="card-header bg-danger bg-opacity-10 text-danger text-center py-1 d-none" style="animation: pulse-warn 1.5s infinite;">
@@ -298,7 +303,7 @@
     WebUSB requires <strong>HTTPS</strong> (or localhost) and <strong>Chrome</strong> or <strong>Edge</strong>.
 </div>
 
-<script src="/wasm/scriba.js"></script>
+<script src="./wasm/scriba.js"></script>
 <script type="module" src="/src/main.js"></script>
 </body>
 </html>
